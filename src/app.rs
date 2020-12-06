@@ -1,5 +1,5 @@
 use crate::input::InputState;
-use crate::world::{get_color, Position, Tile, World};
+use crate::world::{get_color, Tile, World};
 use pixels::{Pixels, SurfaceTexture};
 use std::error;
 use winit::{event::WindowEvent, window::Window};
@@ -45,6 +45,13 @@ impl AppState {
     }
 
     pub fn update(&mut self) {
+        if self
+            .input_state
+            .is_button_pressed(winit::event::MouseButton::Left)
+        {
+            let pos = self.input_state.get_mouse_pos();
+            self.world.set_tile(pos.into(), Tile::Sand);
+        }
         self.world.step();
     }
 }
