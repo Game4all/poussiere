@@ -2,11 +2,13 @@ mod app;
 
 use std::error;
 
-use winit::{event::Event, event_loop::EventLoop, window::WindowBuilder};
+use winit::{event::Event, event::WindowEvent, event_loop::EventLoop, window::WindowBuilder};
 
 fn main() -> Result<(), Box<dyn error::Error>> {
     let event_loop = EventLoop::new();
-    let window = WindowBuilder::new().build(&event_loop).unwrap();
+    let window = WindowBuilder::new()
+        .with_resizable(false)
+        .build(&event_loop)?;
 
     let mut app = app::AppState::create(&window)?;
 
@@ -19,7 +21,11 @@ fn main() -> Result<(), Box<dyn error::Error>> {
             app.draw();
         }
         Event::WindowEvent { event, .. } => {
-            app.handle_input(event);
+            if event == WindowEvent::CloseRequested {
+                *control_flow = winit::event_loop::ControlFlow::Exit;
+            } else {
+                app.handle_input(event);
+            }
         }
         _ => (),
     });

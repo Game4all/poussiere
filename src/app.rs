@@ -1,3 +1,4 @@
+
 use pixels::{Pixels, SurfaceTexture};
 use std::error;
 use winit::{
@@ -22,8 +23,8 @@ impl AppState {
         self.pixels.render().unwrap();
     }
 
-    pub fn handle_input(&mut self, event: WindowEvent) {
-        println!("Handled event: {:?}", event);
+    pub fn handle_input(&mut self, event: WindowEvent) 
+    {
     }
 
     pub fn update(&mut self) {
