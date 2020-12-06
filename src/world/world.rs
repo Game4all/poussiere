@@ -76,6 +76,10 @@ impl World {
             for y in 0..self.size.1 {
                 let position = (x, y).into();
                 let current_tile = self.get_tile(position).unwrap();
+                match current_tile {
+                    Tile::Sand => update_falling_tile(&mut next_gen, position, Tile::Sand),
+                    _ => {}
+                }
             }
         }
 
