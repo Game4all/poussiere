@@ -1,6 +1,8 @@
 mod app;
 mod world;
 
+pub use world::*;
+
 use std::error;
 
 use winit::{event::Event, event::WindowEvent, event_loop::EventLoop, window::WindowBuilder};

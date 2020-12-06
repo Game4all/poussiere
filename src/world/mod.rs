@@ -1,6 +1,8 @@
+mod tiles;
 mod world;
 
 use core::ops::Add;
+pub use tiles::get_color;
 pub use world::World;
 
 #[derive(Clone, Copy, PartialEq, Debug)]
