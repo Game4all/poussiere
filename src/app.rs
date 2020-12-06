@@ -1,10 +1,6 @@
-
 use pixels::{Pixels, SurfaceTexture};
 use std::error;
-use winit::{
-    event::WindowEvent,
-    window::Window,
-};
+use winit::{event::WindowEvent, window::Window};
 
 pub struct AppState {
     pixels: Pixels<Window>,
@@ -23,11 +19,7 @@ impl AppState {
         self.pixels.render().unwrap();
     }
 
-    pub fn handle_input(&mut self, event: WindowEvent) 
-    {
-    }
+    pub fn handle_input(&mut self, event: WindowEvent) {}
 
-    pub fn update(&mut self) {
-
-    }
+    pub fn update(&mut self) {}
 }
