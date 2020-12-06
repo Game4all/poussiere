@@ -1,13 +1,13 @@
+use crate::input::InputState;
+use crate::world::{get_color, Position, Tile, World};
 use pixels::{Pixels, SurfaceTexture};
 use std::error;
 use winit::{event::WindowEvent, window::Window};
-use world::{get_color, Position, Tile, World};
-
-use crate::world;
 
 pub struct AppState {
     pixels: Pixels<Window>,
     world: World,
+    input_state: InputState,
 }
 
 impl AppState {
@@ -18,7 +18,11 @@ impl AppState {
 
         let mut world = World::new((win_size.width as u64, win_size.height as u64));
 
-        Ok(AppState { pixels, world })
+        Ok(AppState {
+            pixels,
+            world,
+            input_state: Default::default(),
+        })
     }
 
     pub fn draw(&mut self) {
@@ -31,7 +35,14 @@ impl AppState {
         self.pixels.render().unwrap();
     }
 
-    pub fn handle_input(&mut self, event: WindowEvent) {}
+    pub fn handle_input(&mut self, event: WindowEvent) {
+        match event {
+            WindowEvent::MouseInput { .. } | WindowEvent::CursorMoved { .. } => {
+                self.input_state.update_input(&event)
+            }
+            _ => {}
+        }
+    }
 
     pub fn update(&mut self) {
         self.world.step();
