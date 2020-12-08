@@ -1,7 +1,7 @@
 use super::{Position, Tile, World};
 use rand::{thread_rng, Rng};
 
-pub fn get_color(tile: &Tile) -> &'static [u8] {
+pub fn get_color(tile: Tile) -> &'static [u8] {
     match tile {
         Tile::Sand => &[194, 178, 128, 255],
         Tile::Stone => &[12, 12, 12, 255],

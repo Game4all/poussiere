@@ -4,6 +4,10 @@ use pixels::{Pixels, SurfaceTexture};
 use std::error;
 use winit::{event::WindowEvent, window::Window};
 
+const TILE_SIZE: u64 = 8;
+pub const WINDOW_WIDTH: u64 = 1024;
+pub const WINDOW_HEIGHT: u64 = 768;
+
 pub struct AppState {
     pixels: Pixels<Window>,
     world: World,
@@ -16,7 +20,10 @@ impl AppState {
         let surface = SurfaceTexture::new(win_size.width, win_size.height, window);
         let pixels = Pixels::new(win_size.width, win_size.height, surface)?;
 
-        let mut world = World::new((win_size.width as u64, win_size.height as u64));
+        let world = World::new((
+            (win_size.width as u64 / TILE_SIZE),
+            (win_size.height as u64 / TILE_SIZE),
+        ));
 
         Ok(AppState {
             pixels,
@@ -28,8 +35,21 @@ impl AppState {
     pub fn draw(&mut self) {
         let frame = self.pixels.get_frame();
 
-        for (pixel, tile) in frame.chunks_exact_mut(4).zip(self.world.get_tiles().iter()) {
-            pixel.copy_from_slice(get_color(tile));
+        let size = self.world.size();
+
+        for x in 0..size.0 {
+            for y in 0..size.1 {
+                let color = get_color(self.world.get_tile((x, y).into()).unwrap());
+                for tx in 0..TILE_SIZE {
+                    for ty in 0..TILE_SIZE {
+                        let idx = ((TILE_SIZE * y + ty) * WINDOW_WIDTH * 4
+                            + (TILE_SIZE * x + tx) * 4) as usize;
+                        for offset in 0..4 {
+                            frame[idx + offset] = color[offset];
+                        }
+                    }
+                }
+            }
         }
 
         self.pixels.render().unwrap();
@@ -50,7 +70,8 @@ impl AppState {
             .is_button_pressed(winit::event::MouseButton::Left)
         {
             let pos = self.input_state.get_mouse_pos();
-            self.world.set_tile(pos.into(), Tile::Sand);
+            let world_pos = (pos.0 / TILE_SIZE, pos.1 / TILE_SIZE);
+            self.world.set_tile(world_pos.into(), Tile::Sand);
         }
         self.world.step();
     }

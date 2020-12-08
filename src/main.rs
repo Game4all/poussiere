@@ -6,11 +6,21 @@ pub use world::*;
 
 use std::error;
 
-use winit::{event::Event, event::WindowEvent, event_loop::EventLoop, window::WindowBuilder};
+use winit::{
+    dpi::{PhysicalSize, Size},
+    event::Event,
+    event::WindowEvent,
+    event_loop::EventLoop,
+    window::WindowBuilder,
+};
 
 fn main() -> Result<(), Box<dyn error::Error>> {
     let event_loop = EventLoop::new();
     let window = WindowBuilder::new()
+        .with_inner_size(Size::Physical(PhysicalSize::new(
+            app::WINDOW_WIDTH as u32,
+            app::WINDOW_HEIGHT as u32,
+        )))
         .with_resizable(false)
         .build(&event_loop)?;
 
