@@ -21,6 +21,7 @@ fn main() -> Result<(), Box<dyn error::Error>> {
             app::WINDOW_WIDTH as u32,
             app::WINDOW_HEIGHT as u32,
         )))
+        .with_title("poussière")
         .with_resizable(false)
         .build(&event_loop)?;
 
