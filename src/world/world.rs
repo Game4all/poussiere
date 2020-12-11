@@ -80,9 +80,7 @@ impl World {
                     Tile::Sand => update_falling_tile(&mut next_gen, position, Tile::Sand),
                     Tile::Water => update_water(&mut next_gen, position),
                     Tile::Lava => update_lava(&mut next_gen, position),
-                    Tile::Stone => {
-                        update_falling_tile(&mut next_gen, position, Tile::Stone)
-                    }
+                    Tile::Stone => update_falling_tile(&mut next_gen, position, Tile::Stone),
                     Tile::Fire => update_fire(&mut next_gen, position),
                     Tile::Acid => update_acid(&mut next_gen, position),
                     _ => {}

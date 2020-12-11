@@ -2,10 +2,11 @@ mod tiles;
 mod world;
 
 use core::ops::Add;
+use strum::{EnumIter, IntoStaticStr};
 pub use tiles::*;
 pub use world::World;
 
-#[derive(Clone, Copy, PartialEq, Debug)]
+#[derive(Clone, Copy, PartialEq, Debug, EnumIter, IntoStaticStr)]
 #[repr(i64)]
 pub enum Tile {
     Air = 0,
@@ -16,9 +17,6 @@ pub enum Tile {
     Wall = 5,
     Fire = 6,
     Acid = 7,
-
-    //hack to get the total number of entries in the enum
-    _NumTotalTiles,
 }
 
 #[derive(Clone, Copy)]

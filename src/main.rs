@@ -1,4 +1,5 @@
 mod app;
+mod gui;
 mod input;
 mod world;
 
@@ -27,19 +28,19 @@ fn main() -> Result<(), Box<dyn error::Error>> {
 
     let mut app = app::AppState::create(&window)?;
 
-    event_loop.run(move |event, _, control_flow| match event {
+    event_loop.run(move |evt, _, control_flow| match &evt {
         Event::MainEventsCleared => {
             app.update();
             window.request_redraw();
         }
         Event::RedrawRequested(_) => {
-            app.draw();
+            app.draw(&window);
         }
         Event::WindowEvent { event, .. } => {
-            if event == WindowEvent::CloseRequested {
+            if event == &WindowEvent::CloseRequested {
                 *control_flow = winit::event_loop::ControlFlow::Exit;
             } else {
-                app.handle_input(event);
+                app.handle_input(&evt, &window);
             }
         }
         _ => (),

@@ -1,7 +1,9 @@
+use crate::gui::Gui;
 use crate::input::InputState;
-use crate::world::{get_color, Tile, World};
+use crate::world::{get_color, World};
 use pixels::{Pixels, SurfaceTexture};
 use std::error;
+use winit::event::Event;
 use winit::{event::WindowEvent, window::Window};
 
 const TILE_SIZE: u64 = 8;
@@ -12,6 +14,7 @@ pub struct AppState {
     pixels: Pixels<Window>,
     world: World,
     input_state: InputState,
+    gui: Gui,
 }
 
 impl AppState {
@@ -25,14 +28,17 @@ impl AppState {
             (win_size.height as u64 / TILE_SIZE),
         ));
 
+        let gui = Gui::new(window, &pixels);
+
         Ok(AppState {
             pixels,
             world,
             input_state: Default::default(),
+            gui,
         })
     }
 
-    pub fn draw(&mut self) {
+    pub fn draw(&mut self, window: &Window) {
         let frame = self.pixels.get_frame();
 
         let size = self.world.size();
@@ -52,15 +58,29 @@ impl AppState {
             }
         }
 
-        self.pixels.render().unwrap();
+        self.gui.prepare(window).expect("so");
+
+        let gui = &mut self.gui;
+
+        self.pixels
+            .render_with(|encoder, render_target, context| {
+                context.scaling_renderer.render(encoder, render_target);
+                gui.render(encoder, render_target, context)
+                    .expect("gui.render() failed");
+            })
+            .unwrap();
     }
 
-    pub fn handle_input(&mut self, event: WindowEvent) {
-        match event {
-            WindowEvent::MouseInput { .. } | WindowEvent::CursorMoved { .. } => {
-                self.input_state.update_input(&event)
+    pub fn handle_input(&mut self, evt: &Event<()>, window: &Window) {
+        if let Event::WindowEvent { event, .. } = evt {
+            match event {
+                WindowEvent::MouseInput { .. } | WindowEvent::CursorMoved { .. } => {
+                    if !self.gui.handle_event(window, evt) {
+                        self.input_state.update_input(&event);
+                    }
+                }
+                _ => {}
             }
-            _ => {}
         }
     }
 
@@ -71,7 +91,8 @@ impl AppState {
         {
             let pos = self.input_state.get_mouse_pos();
             let world_pos = (pos.0 / TILE_SIZE, pos.1 / TILE_SIZE);
-            self.world.set_tile(world_pos.into(), Tile::Sand);
+            self.world
+                .set_tile(world_pos.into(), self.gui.selected_tile);
         }
         self.world.step();
     }

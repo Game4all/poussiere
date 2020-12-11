@@ -75,10 +75,7 @@ pub fn update_fluid(world: &mut World, position: Position, tile: Tile) {
 
 pub fn update_acid(world: &mut World, position: Position) {
     if let Some(right_tile) = world.get_tile(position + (1, 0).into()) {
-        if right_tile != Tile::Air
-            && right_tile != Tile::Acid
-            && right_tile != Tile::Wall
-        {
+        if right_tile != Tile::Air && right_tile != Tile::Acid && right_tile != Tile::Wall {
             world.set_tile(position + (1, 0).into(), Tile::Air);
             world.set_tile(position, Tile::Air);
             return;
@@ -86,8 +83,7 @@ pub fn update_acid(world: &mut World, position: Position) {
     }
 
     if let Some(left_tile) = world.get_tile(position + (-1, 0).into()) {
-        if left_tile != Tile::Air && left_tile != Tile::Acid && left_tile != Tile::Wall
-        {
+        if left_tile != Tile::Air && left_tile != Tile::Acid && left_tile != Tile::Wall {
             world.set_tile(position + (-1, 0).into(), Tile::Air);
             world.set_tile(position, Tile::Air);
             return;
@@ -103,8 +99,7 @@ pub fn update_acid(world: &mut World, position: Position) {
     }
 
     if let Some(down_tile) = world.get_tile(position + (0, -1).into()) {
-        if down_tile != Tile::Air && down_tile != Tile::Acid && down_tile != Tile::Wall
-        {
+        if down_tile != Tile::Air && down_tile != Tile::Acid && down_tile != Tile::Wall {
             world.set_tile(position + (0, -1).into(), Tile::Air);
             world.set_tile(position, Tile::Air);
             return;
@@ -177,4 +172,3 @@ fn neigbour_of_type(world: &mut World, pos: Position, tile: Tile) -> Option<Posi
 
     None
 }
-
