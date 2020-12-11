@@ -15,12 +15,12 @@ impl InputState {
         self.mouse_pos
     }
 
-    pub fn update_input(&mut self, event: &WindowEvent) {
+    pub fn update_input(&mut self, event: &WindowEvent, update_mouse_buttons: bool) {
         match event {
             WindowEvent::CursorMoved { position, .. } => {
                 self.mouse_pos = (position.x as u64, position.y as u64)
             }
-            WindowEvent::MouseInput { button, state, .. } => {
+            WindowEvent::MouseInput { button, state, .. } if update_mouse_buttons => {
                 self.mouse_buttons[id_for_button(*button)] = if *state == ElementState::Pressed {
                     true
                 } else {

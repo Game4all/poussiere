@@ -75,9 +75,8 @@ impl AppState {
         if let Event::WindowEvent { event, .. } = evt {
             match event {
                 WindowEvent::MouseInput { .. } | WindowEvent::CursorMoved { .. } => {
-                    if !self.gui.handle_event(window, evt) {
-                        self.input_state.update_input(&event);
-                    }
+                    self.input_state
+                        .update_input(&event, !self.gui.handle_event(window, evt));
                 }
                 _ => {}
             }
