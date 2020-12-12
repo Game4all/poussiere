@@ -8,7 +8,7 @@ use strum::IntoEnumIterator;
 /// A struct storing current user state
 pub struct UserState {
     pub current_tile: Tile,
-    pub brush_size: u64
+    pub brush_size: u64,
 }
 
 pub struct Gui {
@@ -16,7 +16,7 @@ pub struct Gui {
     platform: imgui_winit_support::WinitPlatform,
     renderer: imgui_wgpu::Renderer,
     last_frame: Instant,
-    pub user_state: UserState, //todo: move to a separate struct storing user state
+    pub user_state: UserState
 }
 
 impl Gui {
@@ -68,8 +68,8 @@ impl Gui {
             last_frame: Instant::now(),
             user_state: UserState {
                 current_tile: Tile::Sand,
-                brush_size: 4u64
-            }
+                brush_size: 4u64,
+            },
         }
     }
 
@@ -94,21 +94,27 @@ impl Gui {
         let ui = self.imgui.frame();
 
         let mut current_tile = self.user_state.current_tile;
-        Window::new(im_str!("Materials")).build(&ui, || {
-
-            // brush size selector
-
-            // let mut brush_size = self.user_state.brush_size;
-
-            //ui.draw
-
+        let mut brush_size = self.user_state.brush_size;
+        let win = Window::new(im_str!("poussière"));
+        win.build(&ui, || {
             
-    
-    
-            // self.user_state.brush_size = brush_size;
+            // brush size selector
+            ui.text("Brush size");
+            if ui.small_button(im_str!("-")) {
+                brush_size -= 1;
+            }
+            ui.same_line_with_spacing(32f32, 0f32);
+            ui.text(format!("{}", brush_size));
+            ui.same_line_with_spacing(50f32, 0f32);
+            if ui.small_button(im_str!("+")) {
+                brush_size += 1;
+            }
+            ui.new_line();
+
+            ui.text("Materials");
 
             // material radio buttons
-            
+
             for tile in Tile::iter() {
                 let name: &'static str = tile.into();
                 if ui.radio_button_bool(&ImString::new(name), tile == current_tile) {
@@ -116,7 +122,9 @@ impl Gui {
                 };
             }
         });
+
         self.user_state.current_tile = current_tile;
+        self.user_state.brush_size = brush_size;
 
         let mut rpass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
             color_attachments: &[wgpu::RenderPassColorAttachmentDescriptor {
