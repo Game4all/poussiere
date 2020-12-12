@@ -87,7 +87,7 @@ impl Gui {
         win.build(&ui, || {
             // brush size selector
             ui.text("Brush size");
-            if ui.small_button(im_str!("-")) {
+            if ui.small_button(im_str!("-")) && user_state.brush_size > 1 {
                 user_state.brush_size -= 1;
             }
             ui.same_line_with_spacing(32f32, 0f32);
