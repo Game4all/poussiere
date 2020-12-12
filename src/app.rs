@@ -1,5 +1,6 @@
 use crate::gui::Gui;
 use crate::input::InputState;
+use crate::world::Tile;
 use crate::world::{get_color, World};
 use pixels::{Pixels, SurfaceTexture};
 use std::error;
@@ -10,11 +11,19 @@ const TILE_SIZE: u64 = 8;
 pub const WINDOW_WIDTH: u64 = 1024;
 pub const WINDOW_HEIGHT: u64 = 768;
 
+/// A struct storing current user state
+pub struct UserState {
+    pub current_tile: Tile,
+    pub brush_size: u64,
+    pub running: bool,
+}
+
 pub struct AppState {
     pixels: Pixels<Window>,
     world: World,
     input_state: InputState,
     gui: Gui,
+    user_state: UserState,
 }
 
 impl AppState {
@@ -35,6 +44,11 @@ impl AppState {
             world,
             input_state: Default::default(),
             gui,
+            user_state: UserState {
+                running: true,
+                brush_size: 4u64,
+                current_tile: Tile::Sand,
+            },
         })
     }
 
@@ -61,11 +75,12 @@ impl AppState {
         self.gui.prepare(window).expect("so");
 
         let gui = &mut self.gui;
+        let state = &mut self.user_state;
 
         self.pixels
             .render_with(|encoder, render_target, context| {
                 context.scaling_renderer.render(encoder, render_target);
-                gui.render(encoder, render_target, context)
+                gui.render(encoder, render_target, context, state)
                     .expect("gui.render() failed");
             })
             .unwrap();
@@ -91,7 +106,7 @@ impl AppState {
             let pos = self.input_state.get_mouse_pos();
             let world_pos = (pos.0 / TILE_SIZE, pos.1 / TILE_SIZE);
 
-            let half_brush_size = self.gui.user_state.brush_size as i64;
+            let half_brush_size = self.user_state.brush_size as i64;
 
             for dx in -half_brush_size..half_brush_size + 1 {
                 for dy in -half_brush_size..half_brush_size + 1 {
@@ -102,10 +117,13 @@ impl AppState {
                     let py = world_pos.1 + dy as u64;
 
                     self.world
-                        .set_tile((px, py).into(), self.gui.user_state.current_tile);
+                        .set_tile((px, py).into(), self.user_state.current_tile);
                 }
             }
         }
-        self.world.step();
+
+        if self.user_state.running {
+            self.world.step();
+        }
     }
 }

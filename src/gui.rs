@@ -1,3 +1,4 @@
+use crate::app::UserState;
 use crate::Tile;
 use imgui::*;
 use imgui_wgpu::RendererConfig;
@@ -5,18 +6,11 @@ use pixels::{wgpu, PixelsContext};
 use std::time::Instant;
 use strum::IntoEnumIterator;
 
-/// A struct storing current user state
-pub struct UserState {
-    pub current_tile: Tile,
-    pub brush_size: u64,
-}
-
 pub struct Gui {
     imgui: imgui::Context,
     platform: imgui_winit_support::WinitPlatform,
     renderer: imgui_wgpu::Renderer,
     last_frame: Instant,
-    pub user_state: UserState
 }
 
 impl Gui {
@@ -66,10 +60,6 @@ impl Gui {
             platform,
             renderer,
             last_frame: Instant::now(),
-            user_state: UserState {
-                current_tile: Tile::Sand,
-                brush_size: 4u64,
-            },
         }
     }
 
@@ -90,41 +80,49 @@ impl Gui {
         encoder: &mut wgpu::CommandEncoder,
         render_target: &wgpu::TextureView,
         context: &PixelsContext,
+        user_state: &mut UserState,
     ) -> imgui_wgpu::RendererResult<()> {
         let ui = self.imgui.frame();
 
-        let mut current_tile = self.user_state.current_tile;
-        let mut brush_size = self.user_state.brush_size;
         let win = Window::new(im_str!("poussière"));
         win.build(&ui, || {
-            
             // brush size selector
             ui.text("Brush size");
             if ui.small_button(im_str!("-")) {
-                brush_size -= 1;
+                user_state.brush_size -= 1;
             }
             ui.same_line_with_spacing(32f32, 0f32);
-            ui.text(format!("{}", brush_size));
+            ui.text(format!("{}", user_state.brush_size));
             ui.same_line_with_spacing(50f32, 0f32);
             if ui.small_button(im_str!("+")) {
-                brush_size += 1;
+                user_state.brush_size += 1;
             }
             ui.new_line();
 
+            ui.text("World");
+
+            let text: &ImStr = if user_state.running {
+                &im_str!("Stop")
+            } else {
+                &im_str!("Start")
+            };
+
+            if ui.small_button(text) {
+                user_state.running = !user_state.running;
+            }
+
+            ui.new_line();
             ui.text("Materials");
 
             // material radio buttons
 
             for tile in Tile::iter() {
                 let name: &'static str = tile.into();
-                if ui.radio_button_bool(&ImString::new(name), tile == current_tile) {
-                    current_tile = tile;
+                if ui.radio_button_bool(&ImString::new(name), tile == user_state.current_tile) {
+                    user_state.current_tile = tile;
                 };
             }
         });
-
-        self.user_state.current_tile = current_tile;
-        self.user_state.brush_size = brush_size;
 
         let mut rpass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
             color_attachments: &[wgpu::RenderPassColorAttachmentDescriptor {
