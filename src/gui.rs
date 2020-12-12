@@ -1,5 +1,4 @@
-use crate::app::UserState;
-use crate::Tile;
+use crate::{app::UserState, Tile};
 use imgui::*;
 use imgui_wgpu::RendererConfig;
 use pixels::{wgpu, PixelsContext};

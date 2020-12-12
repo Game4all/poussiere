@@ -1,7 +1,8 @@
-use crate::gui::Gui;
-use crate::input::InputState;
-use crate::world::Tile;
-use crate::world::{get_color, World};
+use crate::{
+    gui::Gui,
+    input::InputState,
+    world::{get_color, Tile, World},
+};
 use pixels::{Pixels, SurfaceTexture};
 use std::error;
 use winit::event::Event;
