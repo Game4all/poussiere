@@ -4,12 +4,19 @@ use imgui_wgpu::RendererConfig;
 use pixels::{wgpu, PixelsContext};
 use std::time::Instant;
 use strum::IntoEnumIterator;
+
+/// A struct storing current user state
+pub struct UserState {
+    pub current_tile: Tile,
+    pub brush_size: u64
+}
+
 pub struct Gui {
     imgui: imgui::Context,
     platform: imgui_winit_support::WinitPlatform,
     renderer: imgui_wgpu::Renderer,
     last_frame: Instant,
-    pub selected_tile: Tile, //todo: move to a separate struct storing user state
+    pub user_state: UserState, //todo: move to a separate struct storing user state
 }
 
 impl Gui {
@@ -59,7 +66,10 @@ impl Gui {
             platform,
             renderer,
             last_frame: Instant::now(),
-            selected_tile: Tile::Sand,
+            user_state: UserState {
+                current_tile: Tile::Sand,
+                brush_size: 4u64
+            }
         }
     }
 
@@ -83,8 +93,22 @@ impl Gui {
     ) -> imgui_wgpu::RendererResult<()> {
         let ui = self.imgui.frame();
 
-        let mut current_tile = self.selected_tile;
+        let mut current_tile = self.user_state.current_tile;
         Window::new(im_str!("Materials")).build(&ui, || {
+
+            // brush size selector
+
+            // let mut brush_size = self.user_state.brush_size;
+
+            //ui.draw
+
+            
+    
+    
+            // self.user_state.brush_size = brush_size;
+
+            // material radio buttons
+            
             for tile in Tile::iter() {
                 let name: &'static str = tile.into();
                 if ui.radio_button_bool(&ImString::new(name), tile == current_tile) {
@@ -92,7 +116,7 @@ impl Gui {
                 };
             }
         });
-        self.selected_tile = current_tile;
+        self.user_state.current_tile = current_tile;
 
         let mut rpass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
             color_attachments: &[wgpu::RenderPassColorAttachmentDescriptor {

@@ -90,8 +90,21 @@ impl AppState {
         {
             let pos = self.input_state.get_mouse_pos();
             let world_pos = (pos.0 / TILE_SIZE, pos.1 / TILE_SIZE);
-            self.world
-                .set_tile(world_pos.into(), self.gui.selected_tile);
+
+            let half_brush_size = self.gui.user_state.brush_size as i64;
+
+            for dx in -half_brush_size..half_brush_size + 1 {
+                for dy in -half_brush_size..half_brush_size + 1 {
+                    if dx * dx + dy * dy > (half_brush_size * half_brush_size) - 1 {
+                        continue;
+                    };
+                    let px = world_pos.0 + dx as u64;
+                    let py = world_pos.1 + dy as u64;
+
+                    self.world
+                        .set_tile((px, py).into(), self.gui.user_state.current_tile);
+                }
+            }
         }
         self.world.step();
     }
