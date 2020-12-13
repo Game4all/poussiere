@@ -11,10 +11,22 @@ pub fn get_color(tile_type: TileType, variant: u8) -> &'static [u8] {
                 &[204, 180, 149, 255]
             }
         }
-        TileType::Stone => &[12, 12, 12, 255],
-        TileType::Water => &[3, 78, 162, 255],
+        TileType::Stone => {
+            if variant % 2 == 0 {
+                &[132, 132, 132, 255]
+            } else {
+                &[124, 124, 124, 255]
+            }
+        }
+        TileType::Water => &[12, 84, 220, 255],
         TileType::Lava => &[255, 0, 0, 255],
-        TileType::Wall => &[100, 100, 100, 255],
+        TileType::Wall => {
+            if variant % 2 == 0 {
+                &[212, 212, 212, 255]
+            } else {
+                &[220, 220, 220, 255]
+            }
+        }
         TileType::Fire => &[238, 88, 34, 255],
         TileType::Acid => &[0, 255, 126, 255],
         _ => &[0, 0, 0, 0],
