@@ -3,17 +3,17 @@ use std::vec::Vec;
 
 #[derive(Clone)]
 pub struct World {
-    tiles: Vec<TileData>,
+    tiles: Vec<Tile>,
     size: (u64, u64),
 }
 
-pub const TILE_AIR: TileData = TileData {
+pub const TILE_AIR: Tile = Tile {
     variant: 0,
     tile_type: TileType::Air,
 };
 
 #[derive(Clone, Copy)]
-pub struct TileData {
+pub struct Tile {
     pub variant: u8,
     pub tile_type: TileType,
 }
@@ -59,13 +59,13 @@ impl World {
         Some((position.y * self.size.0 + position.x) as usize)
     }
 
-    pub fn set_tile(&mut self, pos: Position, tile: TileData) {
+    pub fn set_tile(&mut self, pos: Position, tile: Tile) {
         if let Some(idx) = self.index_of(pos) {
             self.tiles[idx] = tile;
         }
     }
 
-    pub fn get_tile(&self, pos: Position) -> Option<TileData> {
+    pub fn get_tile(&self, pos: Position) -> Option<Tile> {
         let result = match self.index_of(pos) {
             Some(idx) => Some(self.tiles[idx]),
             None => None,
@@ -74,11 +74,11 @@ impl World {
         result
     }
 
-    pub fn get_tiles(&self) -> &[TileData] {
+    pub fn get_tiles(&self) -> &[Tile] {
         &self.tiles
     }
 
-    pub fn get_tiles_mut(&mut self) -> &mut [TileData] {
+    pub fn get_tiles_mut(&mut self) -> &mut [Tile] {
         &mut self.tiles
     }
 

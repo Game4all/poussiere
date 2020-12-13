@@ -1,13 +1,13 @@
 use crate::{
     gui::Gui,
     input::InputState,
-    world::{get_color, TileData, TileType, World},
+    world::{get_color, Tile, TileType, World},
 };
 use pixels::{Pixels, SurfaceTexture};
+use rand::{prelude::ThreadRng, thread_rng, Rng};
 use std::error;
 use winit::event::Event;
 use winit::{event::WindowEvent, window::Window};
-use rand::{Rng, prelude::ThreadRng, thread_rng};
 
 const TILE_SIZE: u64 = 8;
 pub const WINDOW_WIDTH: u64 = 1024;
@@ -26,7 +26,7 @@ pub struct AppState {
     input_state: InputState,
     gui: Gui,
     user_state: UserState,
-    rng: ThreadRng
+    rng: ThreadRng,
 }
 
 impl AppState {
@@ -52,7 +52,7 @@ impl AppState {
                 brush_size: 4u64,
                 current_tile: TileType::Sand,
             },
-            rng: thread_rng()
+            rng: thread_rng(),
         })
     }
 
@@ -123,7 +123,7 @@ impl AppState {
 
                     self.world.set_tile(
                         (px, py).into(),
-                        TileData {
+                        Tile {
                             variant: self.rng.gen_range(0, 8),
                             tile_type: self.user_state.current_tile,
                         },

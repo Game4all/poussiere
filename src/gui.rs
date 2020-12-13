@@ -117,7 +117,8 @@ impl Gui {
 
             for tile_type in TileType::iter() {
                 let name: &'static str = tile_type.into();
-                if ui.radio_button_bool(&ImString::new(name), tile_type == user_state.current_tile) {
+                if ui.radio_button_bool(&ImString::new(name), tile_type == user_state.current_tile)
+                {
                     user_state.current_tile = tile_type;
                 };
             }
