@@ -1,15 +1,22 @@
-use super::{Position, Tile, World};
+use super::{world::TILE_AIR, Position, TileType, World};
+use crate::world::world::TileData;
 use rand::{thread_rng, Rng};
 
-pub fn get_color(tile: Tile) -> &'static [u8] {
-    match tile {
-        Tile::Sand => &[194, 178, 128, 255],
-        Tile::Stone => &[12, 12, 12, 255],
-        Tile::Water => &[3, 78, 162, 255],
-        Tile::Lava => &[255, 0, 0, 255],
-        Tile::Wall => &[100, 100, 100, 255],
-        Tile::Fire => &[238, 88, 34, 255],
-        Tile::Acid => &[0, 255, 126, 255],
+pub fn get_color(tile_type: TileType, variant: u8) -> &'static [u8] {
+    match tile_type {
+        TileType::Sand => {
+            if variant % 2 == 0 {
+                &[220, 204, 171, 255]
+            } else {
+                &[204, 180, 149, 255]
+            }
+        }
+        TileType::Stone => &[12, 12, 12, 255],
+        TileType::Water => &[3, 78, 162, 255],
+        TileType::Lava => &[255, 0, 0, 255],
+        TileType::Wall => &[100, 100, 100, 255],
+        TileType::Fire => &[238, 88, 34, 255],
+        TileType::Acid => &[0, 255, 126, 255],
         _ => &[0, 0, 0, 0],
     }
 }
@@ -23,11 +30,11 @@ fn random_direction() -> i64 {
     }
 }
 
-pub fn update_falling_tile(world: &mut World, position: Position, tile: Tile) {
+pub fn update_falling_tile(world: &mut World, position: Position, tile: TileData) {
     let dir = position + (random_direction(), 1).into();
 
     if let Some(down_tile) = world.get_tile(position + (0, 1).into()) {
-        if down_tile == Tile::Air || down_tile == Tile::Water {
+        if down_tile.tile_type == TileType::Air || down_tile.tile_type == TileType::Water {
             world.set_tile(position + (0, 1).into(), tile);
             world.set_tile(position, down_tile);
             return;
@@ -35,19 +42,19 @@ pub fn update_falling_tile(world: &mut World, position: Position, tile: Tile) {
     }
 
     if let Some(next_tile) = world.get_tile(dir) {
-        if next_tile == Tile::Air || next_tile == Tile::Water {
+        if next_tile.tile_type == TileType::Air || next_tile.tile_type == TileType::Water {
             world.set_tile(dir, tile);
-            world.set_tile(position, Tile::Air);
+            world.set_tile(position, TILE_AIR);
             return;
         }
     }
 }
 
-pub fn update_fluid(world: &mut World, position: Position, tile: Tile) {
+pub fn update_fluid(world: &mut World, position: Position, tile: TileData) {
     if let Some(down_tile) = world.get_tile(position + (0, 1).into()) {
-        if down_tile == Tile::Air {
+        if down_tile.tile_type == TileType::Air {
             world.set_tile(position + (0, 1).into(), tile);
-            world.set_tile(position, Tile::Air);
+            world.set_tile(position, TILE_AIR);
             return;
         }
     }
@@ -56,9 +63,9 @@ pub fn update_fluid(world: &mut World, position: Position, tile: Tile) {
     let diag_pos = (direction, 1).into();
 
     if let Some(next_diag_tile) = world.get_tile(position + diag_pos) {
-        if next_diag_tile == Tile::Air {
+        if next_diag_tile.tile_type == TileType::Air {
             world.set_tile(position + diag_pos, tile);
-            world.set_tile(position, Tile::Air);
+            world.set_tile(position, TILE_AIR);
             return;
         }
     }
@@ -66,106 +73,142 @@ pub fn update_fluid(world: &mut World, position: Position, tile: Tile) {
     let next_pos = (direction, 0).into();
 
     if let Some(next_tile) = world.get_tile(position + next_pos) {
-        if next_tile == Tile::Air {
+        if next_tile.tile_type == TileType::Air {
             world.set_tile(position + next_pos, tile);
-            world.set_tile(position, Tile::Air);
+            world.set_tile(position, TILE_AIR);
         }
     }
 }
 
-pub fn update_acid(world: &mut World, position: Position) {
+pub fn update_acid(world: &mut World, position: Position, tile: TileData) {
     if let Some(right_tile) = world.get_tile(position + (1, 0).into()) {
-        if right_tile != Tile::Air && right_tile != Tile::Acid && right_tile != Tile::Wall {
-            world.set_tile(position + (1, 0).into(), Tile::Air);
-            world.set_tile(position, Tile::Air);
+        if right_tile.tile_type != TileType::Air
+            && right_tile.tile_type != TileType::Acid
+            && right_tile.tile_type != TileType::Wall
+        {
+            world.set_tile(position + (1, 0).into(), TILE_AIR);
+            world.set_tile(position, TILE_AIR);
             return;
         }
     }
 
     if let Some(left_tile) = world.get_tile(position + (-1, 0).into()) {
-        if left_tile != Tile::Air && left_tile != Tile::Acid && left_tile != Tile::Wall {
-            world.set_tile(position + (-1, 0).into(), Tile::Air);
-            world.set_tile(position, Tile::Air);
+        if left_tile.tile_type != TileType::Air
+            && left_tile.tile_type != TileType::Acid
+            && left_tile.tile_type != TileType::Wall
+        {
+            world.set_tile(position + (-1, 0).into(), TILE_AIR);
+            world.set_tile(position, TILE_AIR);
             return;
         }
     }
 
     if let Some(up_tile) = world.get_tile(position + (0, 1).into()) {
-        if up_tile != Tile::Air && up_tile != Tile::Acid && up_tile != Tile::Wall {
-            world.set_tile(position + (0, 1).into(), Tile::Air);
-            world.set_tile(position, Tile::Air);
+        if up_tile.tile_type != TileType::Air
+            && up_tile.tile_type != TileType::Acid
+            && up_tile.tile_type != TileType::Wall
+        {
+            world.set_tile(position + (0, 1).into(), TILE_AIR);
+            world.set_tile(position, TILE_AIR);
             return;
         }
     }
 
     if let Some(down_tile) = world.get_tile(position + (0, -1).into()) {
-        if down_tile != Tile::Air && down_tile != Tile::Acid && down_tile != Tile::Wall {
-            world.set_tile(position + (0, -1).into(), Tile::Air);
-            world.set_tile(position, Tile::Air);
+        if down_tile.tile_type != TileType::Air
+            && down_tile.tile_type != TileType::Acid
+            && down_tile.tile_type != TileType::Wall
+        {
+            world.set_tile(position + (0, -1).into(), TILE_AIR);
+            world.set_tile(position, TILE_AIR);
             return;
         }
     }
 
-    update_fluid(world, position, Tile::Acid);
+    update_fluid(world, position, tile);
 }
 
-pub fn update_fire(world: &mut World, position: Position) {
+pub fn update_fire(world: &mut World, position: Position, tile: TileData) {
     let dir = position + (random_direction(), 1).into();
 
     if let Some(down_tile) = world.get_tile(dir) {
-        if down_tile == Tile::Air {
-            world.set_tile(dir, Tile::Fire);
+        if down_tile.tile_type == TileType::Air {
+            world.set_tile(dir, tile);
             world.set_tile(position, down_tile);
             return;
-        } else if down_tile != Tile::Fire {
-            world.set_tile(position, Tile::Air);
+        } else if down_tile.tile_type != TileType::Fire {
+            world.set_tile(position, TILE_AIR);
         }
     } else {
-        world.set_tile(position, Tile::Air);
+        world.set_tile(position, TILE_AIR);
     }
 }
 
-pub fn update_water(world: &mut World, position: Position) {
-    if let Some(water_tile) = neigbour_of_type(world, position, Tile::Lava) {
-        world.set_tile(position, Tile::Stone);
-        world.set_tile(position + water_tile, Tile::Stone);
+pub fn update_water(world: &mut World, position: Position, tile: TileData) {
+    if let Some(water_tile) = neigbour_of_type(world, position, TileType::Lava) {
+        world.set_tile(
+            position,
+            TileData {
+                variant: 0,
+                tile_type: TileType::Stone,
+            },
+        );
+        world.set_tile(
+            position + water_tile,
+            TileData {
+                variant: 0,
+                tile_type: TileType::Stone,
+            },
+        );
         return;
     }
 
-    update_fluid(world, position, Tile::Water);
+    update_fluid(world, position, tile);
 }
 
-pub fn update_lava(world: &mut World, position: Position) {
-    if let Some(water_tile) = neigbour_of_type(world, position, Tile::Water) {
-        world.set_tile(position, Tile::Stone);
-        world.set_tile(position + water_tile, Tile::Stone);
+pub fn update_lava(world: &mut World, position: Position, tile: TileData) {
+    if let Some(water_tile) = neigbour_of_type(world, position, TileType::Water) {
+        world.set_tile(
+            position,
+            TileData {
+                variant: 0,
+                tile_type: TileType::Stone,
+            },
+        );
+        world.set_tile(
+            position + water_tile,
+            TileData {
+                variant: 0,
+                tile_type: TileType::Stone,
+            },
+        );
         return;
     }
 
-    update_fluid(world, position, Tile::Lava);
+    update_fluid(world, position, tile);
 }
 
-fn neigbour_of_type(world: &mut World, pos: Position, tile: Tile) -> Option<Position> {
+fn neigbour_of_type(world: &mut World, pos: Position, tile_type: TileType) -> Option<Position> {
     if let Some(right_tile) = world.get_tile(pos + (1, 0).into()) {
-        if right_tile == tile {
+        if right_tile.tile_type == tile_type {
             return Some((1, 0).into());
         }
     }
 
     if let Some(left_tile) = world.get_tile(pos + (-1, 0).into()) {
-        if left_tile == tile {
+        if left_tile.tile_type == tile_type {
             return Some((-1, 0).into());
         }
     }
 
     if let Some(up_tile) = world.get_tile(pos + (0, 1).into()) {
-        if up_tile == tile {
+        if up_tile.tile_type == tile_type {
             return Some((0, 1).into());
         }
     }
 
     if let Some(down_tile) = world.get_tile(pos + (0, -1).into()) {
-        if down_tile == tile {
+        if down_tile.tile_type == tile_type {
             return Some((1, 0).into());
         }
     }

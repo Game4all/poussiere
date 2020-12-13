@@ -1,4 +1,4 @@
-use crate::{app::UserState, Tile};
+use crate::{app::UserState, TileType};
 use imgui::*;
 use imgui_wgpu::RendererConfig;
 use pixels::{wgpu, PixelsContext};
@@ -115,10 +115,10 @@ impl Gui {
 
             // material radio buttons
 
-            for tile in Tile::iter() {
-                let name: &'static str = tile.into();
-                if ui.radio_button_bool(&ImString::new(name), tile == user_state.current_tile) {
-                    user_state.current_tile = tile;
+            for tile_type in TileType::iter() {
+                let name: &'static str = tile_type.into();
+                if ui.radio_button_bool(&ImString::new(name), tile_type == user_state.current_tile) {
+                    user_state.current_tile = tile_type;
                 };
             }
         });

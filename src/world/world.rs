@@ -3,14 +3,25 @@ use std::vec::Vec;
 
 #[derive(Clone)]
 pub struct World {
-    tiles: Vec<Tile>,
+    tiles: Vec<TileData>,
     size: (u64, u64),
+}
+
+pub const TILE_AIR: TileData = TileData {
+    variant: 0,
+    tile_type: TileType::Air,
+};
+
+#[derive(Clone, Copy)]
+pub struct TileData {
+    pub variant: u8,
+    pub tile_type: TileType,
 }
 
 impl World {
     pub fn new(size: (u64, u64)) -> World {
         World {
-            tiles: vec![Tile::Air; (size.0 * size.1) as usize],
+            tiles: vec![TILE_AIR; (size.0 * size.1) as usize],
             size: size,
         }
     }
@@ -24,9 +35,11 @@ impl World {
 
         self.size = new_size;
 
-        self.tiles.iter_mut().for_each(|tile| *tile = Tile::Air);
         self.tiles
-            .resize((new_size.0 * new_size.1) as usize, Tile::Air);
+            .iter_mut()
+            .for_each(|tile_type| *tile_type = TILE_AIR);
+        self.tiles
+            .resize((new_size.0 * new_size.1) as usize, TILE_AIR);
 
         let max_x = u64::min(old_world.size.0, self.size.0);
         let max_y = u64::min(old_world.size.1, self.size.1);
@@ -46,13 +59,13 @@ impl World {
         Some((position.y * self.size.0 + position.x) as usize)
     }
 
-    pub fn set_tile(&mut self, pos: Position, tile: Tile) {
+    pub fn set_tile(&mut self, pos: Position, tile: TileData) {
         if let Some(idx) = self.index_of(pos) {
             self.tiles[idx] = tile;
         }
     }
 
-    pub fn get_tile(&self, pos: Position) -> Option<Tile> {
+    pub fn get_tile(&self, pos: Position) -> Option<TileData> {
         let result = match self.index_of(pos) {
             Some(idx) => Some(self.tiles[idx]),
             None => None,
@@ -61,11 +74,11 @@ impl World {
         result
     }
 
-    pub fn get_tiles(&self) -> &[Tile] {
+    pub fn get_tiles(&self) -> &[TileData] {
         &self.tiles
     }
 
-    pub fn get_tiles_mut(&mut self) -> &mut [Tile] {
+    pub fn get_tiles_mut(&mut self) -> &mut [TileData] {
         &mut self.tiles
     }
 
@@ -76,13 +89,13 @@ impl World {
             for y in 0..self.size.1 {
                 let position = (x, y).into();
                 let current_tile = self.get_tile(position).unwrap();
-                match current_tile {
-                    Tile::Sand => update_falling_tile(&mut next_gen, position, Tile::Sand),
-                    Tile::Water => update_water(&mut next_gen, position),
-                    Tile::Lava => update_lava(&mut next_gen, position),
-                    Tile::Stone => update_falling_tile(&mut next_gen, position, Tile::Stone),
-                    Tile::Fire => update_fire(&mut next_gen, position),
-                    Tile::Acid => update_acid(&mut next_gen, position),
+                match current_tile.tile_type {
+                    TileType::Sand => update_falling_tile(&mut next_gen, position, current_tile),
+                    TileType::Water => update_water(&mut next_gen, position, current_tile),
+                    TileType::Lava => update_lava(&mut next_gen, position, current_tile),
+                    TileType::Stone => update_falling_tile(&mut next_gen, position, current_tile),
+                    TileType::Fire => update_fire(&mut next_gen, position, current_tile),
+                    TileType::Acid => update_acid(&mut next_gen, position, current_tile),
                     _ => {}
                 }
             }

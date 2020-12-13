@@ -4,11 +4,11 @@ mod world;
 use core::ops::Add;
 use strum::{EnumIter, IntoStaticStr};
 pub use tiles::*;
-pub use world::World;
+pub use world::*;
 
 #[derive(Clone, Copy, PartialEq, Debug, EnumIter, IntoStaticStr)]
 #[repr(i64)]
-pub enum Tile {
+pub enum TileType {
     Air = 0,
     Sand = 1,
     Stone = 2,

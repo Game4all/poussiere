@@ -1,12 +1,13 @@
 use crate::{
     gui::Gui,
     input::InputState,
-    world::{get_color, Tile, World},
+    world::{get_color, TileData, TileType, World},
 };
 use pixels::{Pixels, SurfaceTexture};
 use std::error;
 use winit::event::Event;
 use winit::{event::WindowEvent, window::Window};
+use rand::{Rng, prelude::ThreadRng, thread_rng};
 
 const TILE_SIZE: u64 = 8;
 pub const WINDOW_WIDTH: u64 = 1024;
@@ -14,7 +15,7 @@ pub const WINDOW_HEIGHT: u64 = 768;
 
 /// A struct storing current user state
 pub struct UserState {
-    pub current_tile: Tile,
+    pub current_tile: TileType,
     pub brush_size: u64,
     pub running: bool,
 }
@@ -25,6 +26,7 @@ pub struct AppState {
     input_state: InputState,
     gui: Gui,
     user_state: UserState,
+    rng: ThreadRng
 }
 
 impl AppState {
@@ -48,8 +50,9 @@ impl AppState {
             user_state: UserState {
                 running: true,
                 brush_size: 4u64,
-                current_tile: Tile::Sand,
+                current_tile: TileType::Sand,
             },
+            rng: thread_rng()
         })
     }
 
@@ -60,7 +63,8 @@ impl AppState {
 
         for x in 0..size.0 {
             for y in 0..size.1 {
-                let color = get_color(self.world.get_tile((x, y).into()).unwrap());
+                let tile = self.world.get_tile((x, y).into()).unwrap();
+                let color = get_color(tile.tile_type, tile.variant);
                 for tx in 0..TILE_SIZE {
                     for ty in 0..TILE_SIZE {
                         let idx = ((TILE_SIZE * y + ty) * WINDOW_WIDTH * 4
@@ -117,8 +121,13 @@ impl AppState {
                     let px = world_pos.0 + dx as u64;
                     let py = world_pos.1 + dy as u64;
 
-                    self.world
-                        .set_tile((px, py).into(), self.user_state.current_tile);
+                    self.world.set_tile(
+                        (px, py).into(),
+                        TileData {
+                            variant: self.rng.gen_range(0, 8),
+                            tile_type: self.user_state.current_tile,
+                        },
+                    );
                 }
             }
         }
