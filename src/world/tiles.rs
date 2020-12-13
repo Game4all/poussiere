@@ -160,14 +160,14 @@ pub fn update_water(world: &mut World, position: Position, tile: Tile) {
         world.set_tile(
             position,
             Tile {
-                variant: 0,
+                variant: tile.variant,
                 tile_type: TileType::Stone,
             },
         );
         world.set_tile(
             position + water_tile,
             Tile {
-                variant: 0,
+                variant: tile.variant,
                 tile_type: TileType::Stone,
             },
         );
@@ -182,14 +182,14 @@ pub fn update_lava(world: &mut World, position: Position, tile: Tile) {
         world.set_tile(
             position,
             Tile {
-                variant: 0,
+                variant: tile.variant,
                 tile_type: TileType::Stone,
             },
         );
         world.set_tile(
             position + water_tile,
             Tile {
-                variant: 0,
+                variant: tile.variant,
                 tile_type: TileType::Stone,
             },
         );
