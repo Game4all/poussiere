@@ -3,4 +3,4 @@
 A falling sand game clone made with pixels + winit rust libraries
 </div>
 <br>
-<img src="assets/screenshot.png" align="center">
+<img src="assets/capture.gif" align="center">
