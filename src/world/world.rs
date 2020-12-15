@@ -88,13 +88,12 @@ impl World {
         for x in 0..self.size.0 {
             for y in 0..self.size.1 {
                 let position = (x, y).into();
-                let current_tile = self.get_tile(position).unwrap();
+                let current_tile = &mut self.get_tile(position).unwrap();
                 match current_tile.tile_type {
                     TileType::Sand => update_falling_tile(&mut next_gen, position, current_tile),
                     TileType::Water => update_water(&mut next_gen, position, current_tile),
                     TileType::Lava => update_lava(&mut next_gen, position, current_tile),
                     TileType::Stone => update_falling_tile(&mut next_gen, position, current_tile),
-                    TileType::Fire => update_fire(&mut next_gen, position, current_tile),
                     TileType::Acid => update_acid(&mut next_gen, position, current_tile),
                     _ => {}
                 }

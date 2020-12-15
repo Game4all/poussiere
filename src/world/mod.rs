@@ -9,14 +9,13 @@ pub use world::*;
 #[derive(Clone, Copy, PartialEq, Debug, EnumIter, IntoStaticStr)]
 #[repr(i64)]
 pub enum TileType {
-    Air = 0,
-    Sand = 1,
-    Stone = 2,
-    Water = 3,
-    Lava = 4,
-    Wall = 5,
-    Fire = 6,
-    Acid = 7,
+    Air,
+    Sand,
+    Stone,
+    Water,
+    Lava,
+    Wall,
+    Acid,
 }
 
 #[derive(Clone, Copy)]
