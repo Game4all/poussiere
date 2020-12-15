@@ -2,6 +2,7 @@ use crate::{
     gui::Gui,
     input::InputState,
     world::{get_color, Tile, TileType, World},
+    Position,
 };
 use pixels::{Pixels, SurfaceTexture};
 use rand::{prelude::ThreadRng, thread_rng, Rng};
@@ -121,13 +122,7 @@ impl AppState {
                     let px = world_pos.0 + dx as u64;
                     let py = world_pos.1 + dy as u64;
 
-                    self.world.set_tile(
-                        (px, py).into(),
-                        Tile {
-                            variant: self.rng.gen_range(0, 8),
-                            tile_type: self.user_state.current_tile,
-                        },
-                    );
+                    self.place_tile((px, py).into(), self.user_state.current_tile);
                 }
             }
         }
@@ -135,5 +130,23 @@ impl AppState {
         if self.user_state.running {
             self.world.step();
         }
+    }
+
+    fn place_tile(&mut self, pos: Position, tile: TileType) {
+        let variant = self.rng.gen_range(0, 8);
+
+        if let Some(clicked_tile) = self.world.get_tile(pos) {
+            if clicked_tile.tile_type != TileType::Air && tile != TileType::Air {
+                return;
+            }
+        }
+
+        self.world.set_tile(
+            pos,
+            Tile {
+                tile_type: tile,
+                variant: variant,
+            },
+        );
     }
 }
