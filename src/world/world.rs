@@ -91,6 +91,7 @@ impl World {
                 let current_tile = &mut self.get_tile(position).unwrap();
                 match current_tile.tile_type {
                     TileType::Sand => update_falling_tile(&mut next_gen, position, current_tile),
+                    TileType::Dirt => update_falling_tile(&mut next_gen, position, current_tile),
                     TileType::Water => update_water(&mut next_gen, position, current_tile),
                     TileType::Lava => update_lava(&mut next_gen, position, current_tile),
                     TileType::Stone => update_falling_tile(&mut next_gen, position, current_tile),

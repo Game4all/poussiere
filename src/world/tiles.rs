@@ -27,6 +27,11 @@ pub fn get_color(tile_type: TileType, variant: u8) -> &'static [u8] {
             }
         }
         TileType::Acid => &[0, 255, 126, 255],
+        TileType::Dirt => if variant % 2 == 0 {
+            &[116, 84, 51, 255]
+        } else {
+            &[124, 92, 60, 255]
+        }
         _ => &[0, 0, 0, 0],
     }
 }

@@ -11,6 +11,7 @@ pub use world::*;
 pub enum TileType {
     Air,
     Sand,
+    Dirt,
     Stone,
     Water,
     Lava,
