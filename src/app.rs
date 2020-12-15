@@ -10,7 +10,7 @@ use std::error;
 use winit::event::Event;
 use winit::{event::WindowEvent, window::Window};
 
-const TILE_SIZE: u64 = 8;
+const TILE_SIZE: u64 = 4;
 pub const WINDOW_WIDTH: u64 = 1024;
 pub const WINDOW_HEIGHT: u64 = 768;
 
