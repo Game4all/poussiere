@@ -103,4 +103,8 @@ impl World {
 
         self.tiles.copy_from_slice(next_gen.get_tiles());
     }
+
+    pub fn clear(&mut self) {
+        self.tiles.iter_mut().for_each(|tile| *tile = TILE_AIR);
+    }
 }

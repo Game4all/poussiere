@@ -19,6 +19,7 @@ pub struct UserState {
     pub current_tile: TileType,
     pub brush_size: u64,
     pub running: bool,
+    pub clear_flag: bool,
 }
 
 pub struct AppState {
@@ -52,6 +53,7 @@ impl AppState {
                 running: true,
                 brush_size: 4u64,
                 current_tile: TileType::Sand,
+                clear_flag: true,
             },
             rng: thread_rng(),
         })
@@ -125,6 +127,10 @@ impl AppState {
                     self.place_tile((px, py).into(), self.user_state.current_tile);
                 }
             }
+        }
+
+        if self.user_state.clear_flag {
+            self.world.clear();
         }
 
         if self.user_state.running {

@@ -85,6 +85,19 @@ impl Gui {
 
         let win = Window::new(im_str!("poussière"));
         win.build(&ui, || {
+            ui.text("Materials");
+
+            // material radio buttons
+
+            for tile_type in TileType::iter() {
+                let name: &'static str = tile_type.into();
+                if ui.radio_button_bool(&ImString::new(name), tile_type == user_state.current_tile)
+                {
+                    user_state.current_tile = tile_type;
+                };
+            }
+
+            ui.new_line();
             // brush size selector
             ui.text("Brush size");
             if ui.small_button(im_str!("-")) && user_state.brush_size > 1 {
@@ -111,17 +124,10 @@ impl Gui {
             }
 
             ui.new_line();
-            ui.text("Materials");
 
-            // material radio buttons
+            user_state.clear_flag = ui.small_button(&im_str!("Clear World"));
 
-            for tile_type in TileType::iter() {
-                let name: &'static str = tile_type.into();
-                if ui.radio_button_bool(&ImString::new(name), tile_type == user_state.current_tile)
-                {
-                    user_state.current_tile = tile_type;
-                };
-            }
+            ui.new_line();
         });
 
         let mut rpass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
