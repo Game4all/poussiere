@@ -7,7 +7,7 @@ pub use tiles::*;
 pub use world::*;
 
 #[derive(Clone, Copy, PartialEq, Debug, EnumIter, IntoStaticStr)]
-#[repr(i64)]
+#[repr(u8)]
 pub enum TileType {
     Air,
     Sand,

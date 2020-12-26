@@ -7,7 +7,7 @@ use crate::{
 use pixels::{Pixels, SurfaceTexture};
 use rand::{prelude::ThreadRng, thread_rng, Rng};
 use std::error;
-use winit::event::Event;
+use winit::event::{ElementState, Event};
 use winit::{event::WindowEvent, window::Window};
 
 const TILE_SIZE: u64 = 4;
@@ -20,6 +20,13 @@ pub struct UserState {
     pub brush_size: u64,
     pub running: bool,
     pub clear_flag: bool,
+    pub edit_action_flag: Option<EditAction>,
+    pub action_stack_size: usize,
+}
+
+pub enum EditAction {
+    Undo,
+    //Redo,
 }
 
 pub struct AppState {
@@ -28,6 +35,7 @@ pub struct AppState {
     input_state: InputState,
     gui: Gui,
     user_state: UserState,
+    action_stack: Vec<World>,
     rng: ThreadRng,
 }
 
@@ -49,11 +57,14 @@ impl AppState {
             world,
             input_state: Default::default(),
             gui,
+            action_stack: Vec::new(),
             user_state: UserState {
                 running: true,
                 brush_size: 4u64,
                 current_tile: TileType::Sand,
                 clear_flag: true,
+                edit_action_flag: None,
+                action_stack_size: 0,
             },
             rng: thread_rng(),
         })
@@ -97,13 +108,23 @@ impl AppState {
     pub fn handle_input(&mut self, evt: &Event<()>, window: &Window) {
         if let Event::WindowEvent { event, .. } = evt {
             match event {
-                WindowEvent::MouseInput { .. } | WindowEvent::CursorMoved { .. } => {
-                    self.input_state
-                        .update_input(&event, !self.gui.handle_event(window, evt));
+                WindowEvent::MouseInput { state, .. } => {
+                    //whether the input was handled by gui and needs to be handled by the input state
+                    let handle_input = !self.gui.handle_event(window, evt);
+
+                    self.input_state.update_input(&event, handle_input);
+
+                    if handle_input && *state == ElementState::Pressed {
+                        self.action_stack.push(self.world.clone());
+                    }
                 }
+                WindowEvent::CursorMoved { .. } => self
+                    .input_state
+                    .update_input(&event, !self.gui.handle_event(window, evt)),
                 _ => {}
             }
         }
+        self.user_state.action_stack_size = self.action_stack.len();
     }
 
     pub fn update(&mut self) {
@@ -131,6 +152,18 @@ impl AppState {
 
         if self.user_state.clear_flag {
             self.world.clear();
+        }
+
+        if let Some(edit_action) = &self.user_state.edit_action_flag {
+            match *edit_action {
+                // EditAction::Redo => {
+                //     
+                // }
+                EditAction::Undo => {
+                    let last_world = self.action_stack.pop();
+                    self.world = last_world.unwrap();
+                }
+            }
         }
 
         if self.user_state.running {

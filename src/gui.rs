@@ -98,7 +98,9 @@ impl Gui {
             }
 
             ui.new_line();
+
             // brush size selector
+
             ui.text("Brush size");
             if ui.small_button(im_str!("-")) && user_state.brush_size > 1 {
                 user_state.brush_size -= 1;
@@ -126,6 +128,24 @@ impl Gui {
             ui.new_line();
 
             user_state.clear_flag = ui.small_button(&im_str!("Clear World"));
+
+            ui.new_line();
+
+            // undo / redo handling
+
+            let disabled_undo = if user_state.action_stack_size == 0 {
+                (ui.push_style_var(StyleVar::Alpha(0.1)), true)
+            } else {
+                (ui.push_style_var(StyleVar::Alpha(1.0)), false)
+            };
+
+            if ui.small_button(&im_str!("Undo")) && !disabled_undo.1 {
+                user_state.edit_action_flag = Some(crate::app::EditAction::Undo);
+            } else {
+                user_state.edit_action_flag = None;
+            }
+
+            disabled_undo.0.pop(&ui);
 
             ui.new_line();
         });
