@@ -20,7 +20,7 @@ pub struct UserState {
     pub brush_size: u64,
     pub running: bool,
     pub edit_action_flag: Option<EditAction>,
-    pub action_stack_size: usize,
+    pub action_stack: Vec<World>,
 }
 
 pub enum EditAction {
@@ -34,7 +34,6 @@ pub struct AppState {
     input_state: InputState,
     gui: Gui,
     user_state: UserState,
-    action_stack: Vec<World>,
     rng: ThreadRng,
 }
 
@@ -56,13 +55,12 @@ impl AppState {
             world,
             input_state: Default::default(),
             gui,
-            action_stack: Vec::new(),
             user_state: UserState {
                 running: true,
                 brush_size: 4u64,
                 current_tile: TileType::Sand,
                 edit_action_flag: None,
-                action_stack_size: 0,
+                action_stack: Vec::new(),
             },
             rng: thread_rng(),
         })
@@ -111,7 +109,7 @@ impl AppState {
                     self.input_state.update_input(&event, handle_input);
 
                     if handle_input && *state == ElementState::Pressed {
-                        self.action_stack.push(self.world.clone());
+                        self.user_state.action_stack.push(self.world.clone());
                     }
                 }
                 WindowEvent::CursorMoved { .. } => self
@@ -120,7 +118,6 @@ impl AppState {
                 _ => {}
             }
         }
-        self.user_state.action_stack_size = self.action_stack.len();
     }
 
     pub fn update(&mut self) {
@@ -149,7 +146,7 @@ impl AppState {
         if let Some(edit_action) = &self.user_state.edit_action_flag {
             match *edit_action {
                 EditAction::Undo => {
-                    let last_world = self.action_stack.pop();
+                    let last_world = self.user_state.action_stack.pop();
                     self.world = last_world.unwrap();
                 }
                 EditAction::Clear => {

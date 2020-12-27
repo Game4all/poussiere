@@ -135,7 +135,7 @@ impl Gui {
 
             // undo handling
 
-            let disabled_undo = if user_state.action_stack_size == 0 {
+            let disabled_undo = if user_state.action_stack.is_empty() {
                 (ui.push_style_var(StyleVar::Alpha(0.1)), true)
             } else {
                 (ui.push_style_var(StyleVar::Alpha(1.0)), false)
