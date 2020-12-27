@@ -19,14 +19,13 @@ pub struct UserState {
     pub current_tile: TileType,
     pub brush_size: u64,
     pub running: bool,
-    pub clear_flag: bool,
     pub edit_action_flag: Option<EditAction>,
     pub action_stack_size: usize,
 }
 
 pub enum EditAction {
     Undo,
-    //Redo,
+    Clear,
 }
 
 pub struct AppState {
@@ -62,7 +61,6 @@ impl AppState {
                 running: true,
                 brush_size: 4u64,
                 current_tile: TileType::Sand,
-                clear_flag: true,
                 edit_action_flag: None,
                 action_stack_size: 0,
             },
@@ -150,20 +148,17 @@ impl AppState {
             }
         }
 
-        if self.user_state.clear_flag {
-            self.world.clear();
-        }
-
         if let Some(edit_action) = &self.user_state.edit_action_flag {
             match *edit_action {
-                // EditAction::Redo => {
-                //     
-                // }
                 EditAction::Undo => {
                     let last_world = self.action_stack.pop();
                     self.world = last_world.unwrap();
                 }
+                EditAction::Clear => {
+                    self.world.clear();
+                }
             }
+            self.user_state.edit_action_flag = None;
         }
 
         if self.user_state.running {
