@@ -127,12 +127,6 @@ impl Gui {
 
             ui.new_line();
 
-            if ui.small_button(&im_str!("Clear World")) {
-                user_state.edit_action_flag = Some(crate::app::EditAction::Clear);
-            }
-
-            ui.new_line();
-
             // undo handling
 
             let disabled_undo = if user_state.action_stack.is_empty() {
@@ -146,6 +140,20 @@ impl Gui {
             }
 
             disabled_undo.0.pop(&ui);
+
+            let red_bg = ui.push_style_colors(&[
+                (StyleColor::Button, [0.8, 0.0, 0.0, 1.0]),
+                (StyleColor::ButtonHovered, [0.8, 0.0, 0.0, 0.5]),
+                (StyleColor::ButtonActive, [0.8, 0.0, 0.0, 0.5]),
+            ]);
+
+            ui.new_line();
+
+            if ui.small_button(&im_str!("Clear World")) {
+                user_state.edit_action_flag = Some(crate::app::EditAction::Clear);
+            }
+
+            red_bg.pop(&ui);
 
             ui.new_line();
         });
