@@ -21,11 +21,7 @@ impl InputState {
                 self.mouse_pos = (position.x as u64, position.y as u64)
             }
             WindowEvent::MouseInput { button, state, .. } if update_mouse_buttons => {
-                self.mouse_buttons[id_for_button(*button)] = if *state == ElementState::Pressed {
-                    true
-                } else {
-                    false
-                }
+                self.mouse_buttons[id_for_button(*button)] = *state == ElementState::Pressed
             }
             _ => {}
         }

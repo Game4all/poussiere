@@ -68,7 +68,7 @@ impl Gui {
     ) -> Result<(), winit::error::ExternalError> {
         let io = self.imgui.io_mut();
         let last_frame = Instant::now();
-        let delta = last_frame - self.last_frame.clone();
+        let delta = last_frame - self.last_frame;
         io.update_delta_time(delta);
         self.last_frame = last_frame;
         self.platform.prepare_frame(io, window)
@@ -174,7 +174,7 @@ impl Gui {
         self.platform
             .handle_event(self.imgui.io_mut(), window, event);
 
-        return self.imgui.io().want_capture_mouse;
+        self.imgui.io().want_capture_mouse
     }
 }
 

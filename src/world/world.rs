@@ -22,7 +22,7 @@ impl World {
     pub fn new(size: (u64, u64)) -> World {
         World {
             tiles: vec![TILE_AIR; (size.0 * size.1) as usize],
-            size: size,
+            size,
         }
     }
 
@@ -66,12 +66,10 @@ impl World {
     }
 
     pub fn get_tile(&self, pos: Position) -> Option<Tile> {
-        let result = match self.index_of(pos) {
+        match self.index_of(pos) {
             Some(idx) => Some(self.tiles[idx]),
             None => None,
-        };
-
-        result
+        }
     }
 
     pub fn get_tiles(&self) -> &[Tile] {

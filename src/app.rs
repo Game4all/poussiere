@@ -81,9 +81,7 @@ impl AppState {
                     for ty in 0..TILE_SIZE {
                         let idx = ((TILE_SIZE * y + ty) * WINDOW_WIDTH * 4
                             + (TILE_SIZE * x + tx) * 4) as usize;
-                        for offset in 0..4 {
-                            frame[idx + offset] = color[offset];
-                        }
+                        frame[idx..(4 + idx)].clone_from_slice(&color[..4])
                     }
                 }
             }
@@ -179,7 +177,7 @@ impl AppState {
             pos,
             Tile {
                 tile_type: tile,
-                variant: variant,
+                variant,
             },
         );
     }
