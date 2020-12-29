@@ -132,7 +132,7 @@ impl AppState {
 
             for dx in -half_brush_size..half_brush_size + 1 {
                 for dy in -half_brush_size..half_brush_size + 1 {
-                    if dx * dx + dy * dy > (half_brush_size * half_brush_size) - 1 {
+                    if dx * dx + dy * dy > (half_brush_size * half_brush_size) {
                         continue;
                     };
                     let px = world_pos.0 + dx as u64;
