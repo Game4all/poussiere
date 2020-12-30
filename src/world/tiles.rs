@@ -47,7 +47,7 @@ fn random_direction() -> i64 {
     }
 }
 
-pub fn update_falling_tile(world: &mut World, position: Position, tile: &mut Tile) {
+pub fn update_falling_tile(world: &mut World, position: Position, tile: &Tile) {
     let dir = position + (random_direction(), 1).into();
 
     if let Some(down_tile) = world.get_tile(position + (0, 1).into()) {
@@ -67,7 +67,7 @@ pub fn update_falling_tile(world: &mut World, position: Position, tile: &mut Til
     }
 }
 
-pub fn update_fluid(world: &mut World, position: Position, tile: &mut Tile) {
+pub fn update_fluid(world: &mut World, position: Position, tile: &Tile) {
     if let Some(down_tile) = world.get_tile(position + (0, 1).into()) {
         if down_tile.tile_type == TileType::Air {
             world.set_tile(position + (0, 1).into(), *tile);
@@ -97,7 +97,7 @@ pub fn update_fluid(world: &mut World, position: Position, tile: &mut Tile) {
     }
 }
 
-pub fn update_acid(world: &mut World, position: Position, tile: &mut Tile) {
+pub fn update_acid(world: &mut World, position: Position, tile: &Tile) {
     if let Some(right_tile) = world.get_tile(position + (1, 0).into()) {
         if right_tile.tile_type != TileType::Air
             && right_tile.tile_type != TileType::Acid
@@ -145,7 +145,7 @@ pub fn update_acid(world: &mut World, position: Position, tile: &mut Tile) {
     update_fluid(world, position, tile);
 }
 
-pub fn update_water(world: &mut World, position: Position, tile: &mut Tile) {
+pub fn update_water(world: &mut World, position: Position, tile: &Tile) {
     if let Some(water_tile) = neigbour_of_type(world, position, TileType::Lava) {
         world.set_tile(
             position,
@@ -167,7 +167,7 @@ pub fn update_water(world: &mut World, position: Position, tile: &mut Tile) {
     update_fluid(world, position, tile);
 }
 
-pub fn update_lava(world: &mut World, position: Position, tile: &mut Tile) {
+pub fn update_lava(world: &mut World, position: Position, tile: &Tile) {
     if let Some(water_tile) = neigbour_of_type(world, position, TileType::Water) {
         world.set_tile(
             position,

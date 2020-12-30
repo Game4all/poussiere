@@ -1,5 +1,5 @@
 use super::*;
-use std::vec::Vec;
+use std::{iter::Enumerate, slice::Iter, vec::Vec};
 
 #[derive(Clone)]
 pub struct World {
@@ -80,22 +80,22 @@ impl World {
         &mut self.tiles
     }
 
+    pub fn iter_tiles<'a>(&'a self) -> WorldIter<'a> {
+        WorldIter::from_world(self)
+    }
+
     pub fn step(&mut self) {
         let mut next_gen = self.clone();
 
-        for x in 0..self.size.0 {
-            for y in 0..self.size.1 {
-                let position = (x, y).into();
-                let current_tile = &mut self.get_tile(position).unwrap();
-                match current_tile.tile_type {
-                    TileType::Sand => update_falling_tile(&mut next_gen, position, current_tile),
-                    TileType::Dirt => update_falling_tile(&mut next_gen, position, current_tile),
-                    TileType::Water => update_water(&mut next_gen, position, current_tile),
-                    TileType::Lava => update_lava(&mut next_gen, position, current_tile),
-                    TileType::Stone => update_falling_tile(&mut next_gen, position, current_tile),
-                    TileType::Acid => update_acid(&mut next_gen, position, current_tile),
-                    _ => {}
-                }
+        for (position, tile) in self.iter_tiles() {
+            match tile.tile_type {
+                TileType::Sand => update_falling_tile(&mut next_gen, position, tile),
+                TileType::Dirt => update_falling_tile(&mut next_gen, position, tile),
+                TileType::Water => update_water(&mut next_gen, position, tile),
+                TileType::Lava => update_lava(&mut next_gen, position, tile),
+                TileType::Stone => update_falling_tile(&mut next_gen, position, tile),
+                TileType::Acid => update_acid(&mut next_gen, position, tile),
+                _ => {}
             }
         }
 
@@ -104,5 +104,37 @@ impl World {
 
     pub fn clear(&mut self) {
         self.tiles.iter_mut().for_each(|tile| *tile = TILE_AIR);
+    }
+}
+
+pub struct WorldIter<'a> {
+    world: &'a World,
+    iter: Enumerate<Iter<'a, Tile>>,
+}
+
+impl<'a> WorldIter<'a> {
+    fn from_world(world: &'a World) -> WorldIter<'a> {
+        WorldIter {
+            world,
+            iter: world.tiles.iter().enumerate(),
+        }
+    }
+}
+
+impl<'a> Iterator for WorldIter<'a> {
+    type Item = (Position, &'a Tile);
+
+    fn next(&mut self) -> Option<Self::Item> {
+        match self.iter.next() {
+            None => None,
+            Some((idx, tile)) => {
+                let pos = (
+                    (idx % self.world.size.0 as usize) as u64,
+                    (idx / self.world.size.0 as usize) as u64,
+                )
+                    .into();
+                Some((pos, tile))
+            }
+        }
     }
 }

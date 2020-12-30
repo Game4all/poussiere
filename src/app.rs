@@ -69,18 +69,13 @@ impl AppState {
     pub fn draw(&mut self, window: &Window) {
         let frame = self.pixels.get_frame();
 
-        let size = self.world.size();
-
-        for x in 0..size.0 {
-            for y in 0..size.1 {
-                let tile = self.world.get_tile((x, y).into()).unwrap();
-                let color = get_color(tile.tile_type, tile.variant);
-                for tx in 0..TILE_SIZE {
-                    for ty in 0..TILE_SIZE {
-                        let idx = ((TILE_SIZE * y + ty) * WINDOW_WIDTH * 4
-                            + (TILE_SIZE * x + tx) * 4) as usize;
-                        frame[idx..(4 + idx)].clone_from_slice(&color[..4])
-                    }
+        for (position, tile) in self.world.iter_tiles() {
+            let color = get_color(tile.tile_type, tile.variant);
+            for tx in 0..TILE_SIZE {
+                for ty in 0..TILE_SIZE {
+                    let idx = ((TILE_SIZE * position.y + ty) * WINDOW_WIDTH * 4
+                        + (TILE_SIZE * position.x + tx) * 4) as usize;
+                    frame[idx..(4 + idx)].clone_from_slice(&color[..4])
                 }
             }
         }
@@ -132,7 +127,7 @@ impl AppState {
 
             for dx in -half_brush_size..half_brush_size + 1 {
                 for dy in -half_brush_size..half_brush_size + 1 {
-                    if dx * dx + dy * dy > (half_brush_size * half_brush_size) {
+                    if dx * dx + dy * dy > (half_brush_size * half_brush_size) - 1 {
                         continue;
                     };
                     let px = world_pos.0 + dx as u64;
