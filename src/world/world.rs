@@ -80,7 +80,7 @@ impl World {
         &mut self.tiles
     }
 
-    pub fn iter_tiles<'a>(&'a self) -> WorldIter<'a> {
+    pub fn iter_tiles(&self) -> WorldIter<'_> {
         WorldIter::from_world(self)
     }
 
