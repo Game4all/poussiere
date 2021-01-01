@@ -71,15 +71,7 @@ impl World {
             None => None,
         }
     }
-
-    pub fn get_tiles(&self) -> &[Tile] {
-        &self.tiles
-    }
-
-    pub fn get_tiles_mut(&mut self) -> &mut [Tile] {
-        &mut self.tiles
-    }
-
+    
     pub fn iter_tiles(&self) -> WorldIter<'_> {
         WorldIter::from_world(self)
     }
@@ -99,7 +91,7 @@ impl World {
             }
         }
 
-        self.tiles.copy_from_slice(next_gen.get_tiles());
+        self.tiles.copy_from_slice(&next_gen.tiles);
     }
 
     pub fn clear(&mut self) {
