@@ -85,13 +85,13 @@ impl AppState {
         let gui = &mut self.gui;
         let state = &mut self.user_state;
 
-        self.pixels
+        let _ = self.pixels
             .render_with(|encoder, render_target, context| {
                 context.scaling_renderer.render(encoder, render_target);
                 gui.render(encoder, render_target, context, state)
                     .expect("gui.render() failed");
-            })
-            .unwrap();
+            });
+            
     }
 
     pub fn handle_input(&mut self, evt: &Event<()>, window: &Window) {
