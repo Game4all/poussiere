@@ -127,8 +127,8 @@ impl AppState {
                     if dx * dx + dy * dy > (half_brush_size * half_brush_size) - 1 {
                         continue;
                     };
-                    let px = world_pos.0 + dx as u64;
-                    let py = world_pos.1 + dy as u64;
+                    let px = (world_pos.0 as i64 + dx) as u64;
+                    let py = (world_pos.1 as i64 + dy) as u64;
 
                     self.place_tile((px, py).into(), self.user_state.current_tile);
                 }
