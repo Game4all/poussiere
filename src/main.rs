@@ -33,16 +33,13 @@ fn main() -> Result<(), Box<dyn error::Error>> {
             app.update();
             window.request_redraw();
         }
-        Event::RedrawRequested(_) => {
-            app.draw(&window);
-        }
-        Event::WindowEvent { event, .. } => {
-            if event == &WindowEvent::CloseRequested {
+        Event::RedrawRequested(_) => app.draw(&window),
+        Event::WindowEvent { event, .. } => match event {
+            WindowEvent::CloseRequested => {
                 *control_flow = winit::event_loop::ControlFlow::Exit;
-            } else {
-                app.handle_input(&evt, &window);
             }
-        }
+            _ => app.handle_event(&evt, &window),
+        },
         _ => (),
     });
 }

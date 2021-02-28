@@ -19,6 +19,12 @@ pub enum TileType {
     Acid,
 }
 
+impl Default for TileType {
+    fn default() -> Self {
+        TileType::Sand
+    }
+}
+
 #[derive(Clone, Copy)]
 pub struct Position {
     pub x: u64,

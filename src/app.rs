@@ -15,6 +15,7 @@ pub const WINDOW_WIDTH: u64 = 1024;
 pub const WINDOW_HEIGHT: u64 = 768;
 
 /// A struct storing current user state
+#[derive(Default)]
 pub struct UserState {
     pub current_tile: TileType,
     pub brush_size: u64,
@@ -58,9 +59,7 @@ impl AppState {
             user_state: UserState {
                 running: true,
                 brush_size: 4u64,
-                current_tile: TileType::Sand,
-                edit_action_flag: None,
-                action_stack: Vec::new(),
+                ..Default::default()
             },
             rng: thread_rng(),
         })
@@ -80,21 +79,19 @@ impl AppState {
             }
         }
 
-        self.gui.prepare(window).expect("so");
+        self.gui.prepare(window).expect("Failed to gui.prepare()");
 
         let gui = &mut self.gui;
         let state = &mut self.user_state;
 
-        let _ = self.pixels
-            .render_with(|encoder, render_target, context| {
-                context.scaling_renderer.render(encoder, render_target);
-                gui.render(encoder, render_target, context, state)
-                    .expect("gui.render() failed");
-            });
-            
+        let _ = self.pixels.render_with(|encoder, render_target, context| {
+            context.scaling_renderer.render(encoder, render_target);
+            gui.render(encoder, render_target, context, state)
+                .expect("gui.render() failed");
+        });
     }
 
-    pub fn handle_input(&mut self, evt: &Event<()>, window: &Window) {
+    pub fn handle_event(&mut self, evt: &Event<()>, window: &Window) {
         if let Event::WindowEvent { event, .. } = evt {
             match event {
                 WindowEvent::MouseInput { state, .. } => {
@@ -138,17 +135,14 @@ impl AppState {
             }
         }
 
-        if let Some(edit_action) = &self.user_state.edit_action_flag {
+        if let Some(edit_action) = &self.user_state.edit_action_flag.take() {
             match *edit_action {
                 EditAction::Undo => {
                     let last_world = self.user_state.action_stack.pop();
                     self.world = last_world.unwrap();
                 }
-                EditAction::Clear => {
-                    self.world.clear();
-                }
+                EditAction::Clear => self.world.clear(),
             }
-            self.user_state.edit_action_flag = None;
         }
 
         if self.user_state.running {

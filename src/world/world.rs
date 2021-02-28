@@ -66,10 +66,7 @@ impl World {
     }
 
     pub fn get_tile(&self, pos: Position) -> Option<Tile> {
-        match self.index_of(pos) {
-            Some(idx) => Some(self.tiles[idx]),
-            None => None,
-        }
+        self.index_of(pos).map(|idx| self.tiles[idx])
     }
     
     pub fn iter_tiles(&self) -> WorldIter<'_> {
