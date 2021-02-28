@@ -157,7 +157,7 @@ impl AppState {
     }
 
     fn place_tile(&mut self, pos: Position, tile: TileType) {
-        let variant = self.rng.gen_range(0, 8);
+        let variant = self.rng.gen_range(0..=8);
 
         if let Some(clicked_tile) = self.world.get_tile(pos) {
             if clicked_tile.tile_type != TileType::Air && tile != TileType::Air {
