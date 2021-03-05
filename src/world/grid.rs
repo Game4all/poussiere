@@ -1,8 +1,10 @@
 use super::*;
 use std::{iter::Enumerate, slice::Iter, vec::Vec};
 
+/// The falling sand simulation grid.
+/// (X, Y) coordinates in the grid extend respectively to the right and to the bottom
 #[derive(Clone)]
-pub struct World {
+pub struct Grid {
     tiles: Vec<Tile>,
     size: (u64, u64),
 }
@@ -18,9 +20,9 @@ pub struct Tile {
     pub tile_type: TileType,
 }
 
-impl World {
-    pub fn new(size: (u64, u64)) -> World {
-        World {
+impl Grid {
+    pub fn new(size: (u64, u64)) -> Grid {
+        Grid {
             tiles: vec![TILE_AIR; (size.0 * size.1) as usize],
             size,
         }
@@ -30,45 +32,26 @@ impl World {
         self.size
     }
 
-    pub fn resize(&mut self, new_size: (u64, u64)) {
-        let old_world = self.clone();
-
-        self.size = new_size;
-
-        self.tiles
-            .iter_mut()
-            .for_each(|tile_type| *tile_type = TILE_AIR);
-        self.tiles
-            .resize((new_size.0 * new_size.1) as usize, TILE_AIR);
-
-        let max_x = u64::min(old_world.size.0, self.size.0);
-        let max_y = u64::min(old_world.size.1, self.size.1);
-
-        for x in 0..max_x {
-            for y in 0..max_y {
-                self.set_tile((x, y).into(), old_world.get_tile((x, y).into()).unwrap())
-            }
+    fn index_of(&self, position: Pos2i) -> Option<usize> {
+        if (0..self.size.0 as i64).contains(&position.x)
+            && (0..self.size.1 as i64).contains(&position.y)
+        {
+            Some((position.y * self.size.0 as i64 + position.x) as usize)
+        } else {
+            None
         }
     }
 
-    fn index_of(&self, position: Position) -> Option<usize> {
-        if position.x >= self.size.0 || position.y >= self.size.1 {
-            return None;
-        }
-
-        Some((position.y * self.size.0 + position.x) as usize)
-    }
-
-    pub fn set_tile(&mut self, pos: Position, tile: Tile) {
+    pub fn set_tile(&mut self, pos: Pos2i, tile: Tile) {
         if let Some(idx) = self.index_of(pos) {
             self.tiles[idx] = tile;
         }
     }
 
-    pub fn get_tile(&self, pos: Position) -> Option<Tile> {
+    pub fn get_tile(&self, pos: Pos2i) -> Option<Tile> {
         self.index_of(pos).map(|idx| self.tiles[idx])
     }
-    
+
     pub fn iter_tiles(&self) -> WorldIter<'_> {
         WorldIter::from_world(self)
     }
@@ -97,12 +80,12 @@ impl World {
 }
 
 pub struct WorldIter<'a> {
-    world: &'a World,
+    world: &'a Grid,
     iter: Enumerate<Iter<'a, Tile>>,
 }
 
 impl<'a> WorldIter<'a> {
-    fn from_world(world: &'a World) -> WorldIter<'a> {
+    fn from_world(world: &'a Grid) -> WorldIter<'a> {
         WorldIter {
             world,
             iter: world.tiles.iter().enumerate(),
@@ -111,15 +94,15 @@ impl<'a> WorldIter<'a> {
 }
 
 impl<'a> Iterator for WorldIter<'a> {
-    type Item = (Position, &'a Tile);
+    type Item = (Pos2i, &'a Tile);
 
     fn next(&mut self) -> Option<Self::Item> {
         match self.iter.next() {
             None => None,
             Some((idx, tile)) => {
                 let pos = (
-                    (idx % self.world.size.0 as usize) as u64,
-                    (idx / self.world.size.0 as usize) as u64,
+                    (idx % self.world.size.0 as usize) as i64,
+                    (idx / self.world.size.0 as usize) as i64,
                 )
                     .into();
                 Some((pos, tile))

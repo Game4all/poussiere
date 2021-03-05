@@ -1,8 +1,7 @@
 use crate::{
     gui::Gui,
     input::InputState,
-    world::{get_color, Tile, TileType, World},
-    Position,
+    world::{get_color, Grid, Pos2i, Tile, TileType},
 };
 use pixels::{Pixels, SurfaceTexture};
 use rand::{prelude::ThreadRng, thread_rng, Rng};
@@ -21,7 +20,7 @@ pub struct UserState {
     pub brush_size: u64,
     pub running: bool,
     pub edit_action_flag: Option<EditAction>,
-    pub action_stack: Vec<World>,
+    pub action_stack: Vec<Grid>,
 }
 
 pub enum EditAction {
@@ -31,7 +30,7 @@ pub enum EditAction {
 
 pub struct AppState {
     pixels: Pixels<Window>,
-    world: World,
+    world: Grid,
     input_state: InputState,
     gui: Gui,
     user_state: UserState,
@@ -44,7 +43,7 @@ impl AppState {
         let surface = SurfaceTexture::new(win_size.width, win_size.height, window);
         let pixels = Pixels::new(win_size.width, win_size.height, surface)?;
 
-        let world = World::new((
+        let world = Grid::new((
             (win_size.width as u64 / TILE_SIZE),
             (win_size.height as u64 / TILE_SIZE),
         ));
@@ -72,8 +71,9 @@ impl AppState {
             let color = get_color(tile.tile_type, tile.variant);
             for tx in 0..TILE_SIZE {
                 for ty in 0..TILE_SIZE {
-                    let idx = ((TILE_SIZE * position.y + ty) * WINDOW_WIDTH * 4
-                        + (TILE_SIZE * position.x + tx) * 4) as usize;
+                    let idx = ((TILE_SIZE * position.y as u64 + ty) * WINDOW_WIDTH * 4
+                        + (TILE_SIZE * position.x as u64 + tx) * 4)
+                        as usize;
                     frame[idx..(4 + idx)].clone_from_slice(&color[..4])
                 }
             }
@@ -127,8 +127,8 @@ impl AppState {
                     if dx * dx + dy * dy > (half_brush_size * half_brush_size) - 1 {
                         continue;
                     };
-                    let px = (world_pos.0 as i64 + dx) as u64;
-                    let py = (world_pos.1 as i64 + dy) as u64;
+                    let px = (world_pos.0 as i64 + dx) as i64;
+                    let py = (world_pos.1 as i64 + dy) as i64;
 
                     self.place_tile((px, py).into(), self.user_state.current_tile);
                 }
@@ -150,7 +150,7 @@ impl AppState {
         }
     }
 
-    fn place_tile(&mut self, pos: Position, tile: TileType) {
+    fn place_tile(&mut self, pos: Pos2i, tile: TileType) {
         let variant = self.rng.gen_range(0..=8);
 
         if let Some(clicked_tile) = self.world.get_tile(pos) {
