@@ -56,6 +56,14 @@ impl Grid {
         WorldIter::from_world(self)
     }
 
+    pub fn snapshot(&self) -> Vec<Tile> {
+        self.tiles.clone()
+    }
+
+    pub fn restore(&mut self, tiles: Vec<Tile>) {
+        self.tiles.copy_from_slice(&tiles);
+    }
+
     pub fn step(&mut self) {
         let mut next_gen = self.clone();
 

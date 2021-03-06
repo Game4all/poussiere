@@ -20,7 +20,7 @@ pub struct UserState {
     pub brush_size: u64,
     pub running: bool,
     pub edit_action_flag: Option<EditAction>,
-    pub action_stack: Vec<Grid>,
+    pub action_stack: Vec<Vec<Tile>>,
 }
 
 pub enum EditAction {
@@ -101,7 +101,7 @@ impl AppState {
                     self.input_state.update_input(&event, handle_input);
 
                     if handle_input && *state == ElementState::Pressed {
-                        self.user_state.action_stack.push(self.world.clone());
+                        self.user_state.action_stack.push(self.world.snapshot());
                     }
                 }
                 WindowEvent::CursorMoved { .. } => self
@@ -138,8 +138,8 @@ impl AppState {
         if let Some(edit_action) = &self.user_state.edit_action_flag.take() {
             match *edit_action {
                 EditAction::Undo => {
-                    let last_world = self.user_state.action_stack.pop();
-                    self.world = last_world.unwrap();
+                    let last_world = self.user_state.action_stack.pop().unwrap();
+                    self.world.restore(last_world);
                 }
                 EditAction::Clear => self.world.clear(),
             }
